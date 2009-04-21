@@ -1,14 +1,23 @@
 (function (){
    const keycodeMap = {left:37, up:38, right:39, down:40};
    var loading = false;
+   var lock = false;
 
    /* load images beyond pages */
    function contentsLoader(set) {
-      var imglist = [];
-      var current = -1;
-      var page    = 0;
+      function getContentImages(xpath, root) {
+         imgs = document.evaluate(xpath, root, null, 7, null);
+         for (var i=0,max=imgs.snapshotLength;i<max;i++) {
+            imglist[imglist.length] = imgs.snapshotItem(i);
+         }
+      };
 
-      function addElements(next) {
+      var imglist = [];
+      getContentImages(set.xpath, document);
+      var current = -1;
+      var page    = 1;
+
+      function addElements(proc) {
          loading = true;
          r = new XMLHttpRequest();
          if (r) {
@@ -18,14 +27,10 @@
                   div.style.display = "none";
                   div.innerHTML = r.responseText;
                   document.body.appendChild(div);
-                  imgs = document.evaluate(set.xpath, document,
-                                           null, 7, null);
-                  for (var i=0,max=imgs.snapshotLength;i<max;i++) {
-                     imglist[imglist.length] = imgs.snapshotItem(i);
-                  }
+                  getContentImages(set.xpath, document);
                   document.body.removeChild(div);
                   loading = false;
-                  next(imglist[++current]);
+                  proc(imglist[++current]);
 	           }
             };
             r.open("GET", "./?page="+(++page));
@@ -34,22 +39,27 @@
             alert("failed to create xmlhttprequest object");
          }
       }
-      this.getNext = function(next) {
-         if (!next) {
-            next = (function(){})
+      this.getNext = function(proc) {
+         if (!proc) {
+            proc = (function(){});
          }
          
          if (current > imglist.length-10 && !loading) {
             addElements(function(){});
          }
          if (current+1 == imglist.length) {
-            /*addElements(next);*/
+            /*addElements(proc);*/
          } else {
-            next(imglist[++current]);
+            proc(imglist[++current]);
          }
       };
-      this.getPrevious = function() {
-         return imglist[--current];
+      this.getPrevious = function(proc) {
+         if (!proc) {
+            proc = (function(){});
+         }
+         if (current > 0) {
+            proc(imglist[--current]);
+         }
       };
       return this;
    };
@@ -69,19 +79,25 @@
    while (document.body.childNodes.length != -0) {
       document.body.removeChild(document.body.firstChild);
    }
-   document.body.width = "320px";
-   document.body.height = "480px";
+   document.body.width = "100%";
+   document.body.height = "1372px";
    document.body.style.margin = "0px";
 
    var container = document.createElement('div');
    container.id = "imagearea";
-   container.style.width = "320px";
-   container.style.height = "480px";
+   container.style.width = "100%";
+   container.style.height = "1372px";
    document.body.appendChild(container);
    container.appendChild(document.createElement('img'));
 
    container.addEventListener('click', function(e) {
-      contents.getNext(changeImg);
+      if (!lock) {
+         if (e.x < document.body.clientWidth / 2) {
+            contents.getPrevious(changeImg);
+         } else {
+            contents.getNext(changeImg);
+         }
+      }
    }, true);
 
    function changeImg(img){
@@ -92,19 +108,25 @@
             setTimeout(animate, 40);
          } else {
             ia = document.getElementById('imagearea');
-            ia.removeChild(ia.firstChild);
+            if (ia.childNodes.length > 1) {
+               ia.removeChild(ia.firstChild);
+            }
+            lock = false;
          }
       }
 
       img.style.position = "absolute";
       img.style.margin = "0px";
-      img.style.width = "320px";
+      img.style.width = "100%";
       img.style.opacity = 0;
       document.getElementById('imagearea').appendChild(img);
       setTimeout(animate, 40);
+      lock = true;
    }
 
-   contents.getNext(changeImg);   
+   contents.getNext(changeImg);
+
+   window.onload = function(){setTimeout(scrollTo, 100, 0, 1);};
 })()
 
 
