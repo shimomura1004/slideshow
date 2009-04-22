@@ -1,21 +1,28 @@
 (function (){
    const keycodeMap = {left:37, up:38, right:39, down:40};
-   var loading = false;
    var lock = false;
 
    /* load images beyond pages */
    function contentsLoader(set) {
+      if (!set) {
+         set = {
+            xpath : "//img",
+            pager : "./?page="
+         };
+      }
+      var loading = false;
+      var imglist = [];
+      getContentImages(set.xpath, document);
+
+      var current = -1;
+      var page    = 1;
+
       function getContentImages(xpath, root) {
          imgs = document.evaluate(xpath, root, null, 7, null);
          for (var i=0,max=imgs.snapshotLength;i<max;i++) {
             imglist[imglist.length] = imgs.snapshotItem(i);
          }
       };
-
-      var imglist = [];
-      getContentImages(set.xpath, document);
-      var current = -1;
-      var page    = 1;
 
       function addElements(proc) {
          loading = true;
@@ -33,16 +40,15 @@
                   proc(imglist[++current]);
 	           }
             };
-            r.open("GET", "./?page="+(++page));
+            r.open("GET", set.pager+(++page));
 		    r.send(null);
          } else {
             alert("failed to create xmlhttprequest object");
          }
       }
+
       this.getNext = function(proc) {
-         if (!proc) {
-            proc = (function(){});
-         }
+         if (!proc) { proc = (function(){}); }
          
          if (current > imglist.length-10 && !loading) {
             addElements(function(){});
@@ -53,52 +59,72 @@
             proc(imglist[++current]);
          }
       };
+
       this.getPrevious = function(proc) {
-         if (!proc) {
-            proc = (function(){});
-         }
+         if (!proc) { proc = (function(){}); }
          if (current > 0) {
             proc(imglist[--current]);
          }
       };
-      return this;
    };
 
-   var for4u = {
+   var locations = [];
+   locations["4u.straightline.jp"] = {
       xpath : "//div[@class='entry-photo']/a/img",
+      pager : "./?page="
    };
+   locations["www.flickr.com"] = {
+      xpath : "//img[@class='pc_img']",
+      pager : "./search/?q=westie&s=int&page="
+   };
+   locations["okinny.heypo.net"] = {
+      xpath : "//div[@class='img']/a/img",
+      pager : "./page/"
+   };
+   locations["okinny.tumblr.com"] = {
+      xpath : "//div[@class='photo']/a/img",
+      pager : "./page/"
+   };
+   var contents = new contentsLoader(locations[location.host]);
 
 
-   var contents = contentsLoader(for4u);
-
-
-   head = document.getElementsByTagName('head')[0];
-   while (head.childNodes.length != 0) {
-      head.removeChild(head.firstChild);
-   }
-   while (document.body.childNodes.length != -0) {
-      document.body.removeChild(document.body.firstChild);
-   }
-   document.body.width = "100%";
-   document.body.height = "1372px";
-   document.body.style.margin = "0px";
-
-   var container = document.createElement('div');
-   container.id = "imagearea";
-   container.style.width = "100%";
-   container.style.height = "1372px";
-   document.body.appendChild(container);
-   container.appendChild(document.createElement('img'));
-
-   container.addEventListener('click', function(e) {
-      if (!lock) {
-         if (e.x < document.body.clientWidth / 2) {
-            contents.getPrevious(changeImg);
-         } else {
-            contents.getNext(changeImg);
+   function prepareSlideShowPage(){
+      function removeOriginalElements(){
+         head = document.getElementsByTagName('head')[0];
+         while (head.childNodes.length != 0) {
+            head.removeChild(head.firstChild);
          }
-      }
-   }, true);
+         while (document.body.childNodes.length != -0) {
+            document.body.removeChild(document.body.firstChild);
+         }
+      };
+      removeOriginalElements();
+
+      function prepareNewPage(){
+         document.body.width = "100%";
+         document.body.height = "1372px";
+         document.body.style.margin = "0px";
+         
+         var container = document.createElement('div');
+         container.id = "imagearea";
+         container.style.width = "100%";
+         container.style.height = "1372px";
+         document.body.appendChild(container);
+         container.appendChild(document.createElement('img'));
+         
+         container.addEventListener('click', function(e) {
+            if (!lock) {
+               if (e.x < document.body.clientWidth / 2) {
+                  contents.getPrevious(changeImg);
+               } else {
+                  contents.getNext(changeImg);
+               }
+            }
+         }, true);
+      };
+      prepareNewPage();
+   };
+   prepareSlideShowPage();
 
    function changeImg(img){
       function animate() {
@@ -126,52 +152,5 @@
 
    contents.getNext(changeImg);
 
-   window.onload = function(){setTimeout(scrollTo, 100, 0, 1);};
+   window.scroll(0, 100);
 })()
-
-
-
-
-// var currentPosition = 1;
-// var currentDirection = 0;
-
-// var newimg;
-// var oldimg;
-
-// var lock = false;
-
-// function move(direction) {
-//    // move pics
-//    currentPosition += 1;
-//    map = document.getElementById("map");
-//    oldimg = map.firstChild;
-//    newimg = document.createElement('img');
-
-//    newimg.setAttribute('src', 'pics/SANY000'+currentPosition.toString()+'.JPG')
-//    newimg.setAttribute('class', 'mappic');
-//    newimg.style.opacity = '0';
-//    map.appendChild(newimg);
-
-//    setTimeout(animate, 100)
-// }
-// function animate() {
-//    if ( parseFloat(newimg.style.opacity) < 1 ) {
-//       newimg.style.opacity = (parseFloat(newimg.style.opacity) + 0.1).toString();
-//       setTimeout(animate, 100);
-//    } else {
-//       newimg.style.left = "0";
-//       newimg.addEventListener("click", function(e){ move() }, true);
-//       oldimg.parentNode.removeChild(oldimg);
-//       lock = false;
-//    }
-// }
-
-// function init() {
-//    document.body.addEventListener("keydown", onkeydown, false);
-// }
-// function onkeydown(e) {
-//    if (e.keyCode == up && !lock) {
-//       lock = true;
-//       move();
-//    }
-// }
