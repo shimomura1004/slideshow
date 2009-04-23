@@ -57,12 +57,15 @@
             /*addElements(proc);*/
          } else {
             proc(imglist[++current]);
+            if (current - 10 > 0) {
+               imglist[current-10] = undefined;
+            }
          }
       };
 
       this.getPrevious = function(proc) {
          if (!proc) { proc = (function(){}); }
-         if (current > 0) {
+         if (current > 0 && imglist[current-1]) {
             proc(imglist[--current]);
          }
       };
