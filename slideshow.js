@@ -4,12 +4,6 @@
 
    /* load images beyond pages */
    function contentsLoader(set) {
-      if (!set) {
-         set = {
-            xpath : "//img",
-            pager : "./?page="
-         };
-      }
       var loading = false;
       var imglist = [];
       getContentImages(set.xpath, document);
@@ -48,47 +42,54 @@
       }
 
       this.getNext = function(proc) {
-         if (!proc) { proc = (function(){}); }
+         proc = proc || (function(){});
          
          if (current > imglist.length-10 && !loading) {
+            /* load new page */
             addElements(function(){});
          }
-         if (current+1 == imglist.length) {
-            /*addElements(proc);*/
-         } else {
+         if (current+1 < imglist.length) {
             proc(imglist[++current]);
             if (current - 10 > 0) {
+               /* remove old images */
                imglist[current-10] = undefined;
             }
          }
       };
 
       this.getPrevious = function(proc) {
-         if (!proc) { proc = (function(){}); }
+         proc = proc || (function(){});
          if (current > 0 && imglist[current-1]) {
             proc(imglist[--current]);
          }
       };
    };
 
-   var locations = [];
-   locations["4u.straightline.jp"] = {
-      xpath : "//div[@class='entry-photo']/a/img",
-      pager : "./?page="
+   function getLocationSet(location){
+      var locations = [];
+      locations["4u.straightline.jp"] = {
+         xpath : "//div[@class='entry-photo']/a/img",
+         pager : "./?page="
+      };
+      locations["www.flickr.com"] = {
+         xpath : "//img[@class='pc_img']",
+         pager : "./search/?q=westie&s=int&page="
+      };
+      locations["okinny.heypo.net"] = {
+         xpath : "//div[@class='img']/a/img",
+         pager : "./page/"
+      };
+      locations["okinny.tumblr.com"] = {
+         xpath : "//div[@class='photo']/a/img",
+         pager : "./page/"
+      };
+      return locations[location] || {xpath:"//img", pager:"./?page="};
    };
-   locations["www.flickr.com"] = {
-      xpath : "//img[@class='pc_img']",
-      pager : "./search/?q=westie&s=int&page="
-   };
-   locations["okinny.heypo.net"] = {
-      xpath : "//div[@class='img']/a/img",
-      pager : "./page/"
-   };
-   locations["okinny.tumblr.com"] = {
-      xpath : "//div[@class='photo']/a/img",
-      pager : "./page/"
-   };
-   var contents = new contentsLoader(locations[location.host]);
+
+
+
+
+   var contents = new contentsLoader(getLocationSet(location.host));
 
 
    function prepareSlideShowPage(){
@@ -155,5 +156,5 @@
 
    contents.getNext(changeImg);
 
-   window.scroll(0, 100);
+   setTimeout(scrollTo, 100, 0, 1);
 })()
