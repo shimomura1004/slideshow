@@ -44,6 +44,30 @@
             document.body.removeChild(div);
          });
       };
+      loaders["okinny.heypo.net"] = function(proc, current){
+         page = ((typeof(page)=="undefined")?1:page);
+         xhr("./?page="+page, function(text){
+            page++;
+            div = document.createElement('div');
+            div.style.display = "none";
+            div.innerHTML = text;
+            document.body.appendChild(div);
+            getContentImages("//div[@class='img']/a/img", document);
+            document.body.removeChild(div);
+         });
+      };
+      loaders[".*tumblr.com"] = function(proc, current){
+         page = ((typeof(page)=="undefined")?1:page);
+         xhr("./?page="+page, function(text){
+            page++;
+            div = document.createElement('div');
+            div.style.display = "none";
+            div.innerHTML = text;
+            document.body.appendChild(div);
+            getContentImages("//div[@class='photo']/a/img", document);
+            document.body.removeChild(div);
+         });
+      };
 
 
       for (key in loaders) {
