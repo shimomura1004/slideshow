@@ -189,11 +189,10 @@
    menu.style.zIndex = '100';
    menu.style.opacity = 0.8;
    menu.style.display = 'none';
-   var play = document.createElement('h3');
-   var a = document.createElement('a');
-   a.innerText = "play";
-   a.style.margin = '3px';
-   play.appendChild(a);
+   var play = document.createElement('a');
+   play.innerText = "play";
+   play.style.margin = '10px';
+   play.style.fontSize = '50pt';
    menu.appendChild(play);
    document.body.appendChild(menu);
 
