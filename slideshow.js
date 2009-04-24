@@ -1,7 +1,7 @@
 (function (){
    const keycodeMap = {left:37, up:38, right:39, down:40};
    var lock = false;
-   var autoscrolling = true;
+
 
    /* load images beyond pages */
    function contentsLoader(set) {
@@ -66,6 +66,25 @@
       };
    };
 
+   function autoScroller(wait){
+      var autoscrolling = false;
+      this.start = function(){
+         autoscrolling = true;
+         scroll();
+      };
+      this.stop = function(){
+         autoscrolling = false;
+      };
+      function scroll(){
+         setTimeout(function (){
+            if (autoscrolling) {
+               contents.getNext(changeImg);
+               setTimeout(arguments.callee, wait);
+            }
+         }, 0);
+      };
+   };
+
    function getLocationSet(location){
       var locations = [];
       locations["4u.straightline.jp"] = {
@@ -86,50 +105,6 @@
       };
       return locations[location] || {xpath:"//img", pager:"./?page="};
    };
-
-
-
-
-   var contents = new contentsLoader(getLocationSet(location.host));
-
-   function prepareSlideShowPage(){
-      function removeOriginalElements(){
-         head = document.getElementsByTagName('head')[0];
-         while (head.childNodes.length != 0) {
-            head.removeChild(head.firstChild);
-         }
-         while (document.body.childNodes.length != -0) {
-            document.body.removeChild(document.body.firstChild);
-         }
-      };
-      function prepareNewPage(){
-         document.body.width = "100%";
-         document.body.height = "1372px";
-         document.body.style.margin = "0px";
-         
-         var container = document.createElement('div');
-         container.id = "imagearea";
-         container.style.width = "100%";
-         container.style.height = "1372px";
-         document.body.appendChild(container);
-         container.appendChild(document.createElement('img'));
-         
-         container.addEventListener('click', function(e) {
-            autoscrolling = false;
-            if (!lock) {
-               if (e.x < document.body.clientWidth / 2) {
-                  contents.getPrevious(changeImg);
-               } else {
-                  contents.getNext(changeImg);
-               }
-            }
-         }, true);
-      };
-
-      removeOriginalElements();
-      prepareNewPage();
-   };
-   prepareSlideShowPage();
 
    function changeImg(img){
       function animate() {
@@ -155,12 +130,44 @@
       lock = true;
    };
 
-   /* auto scrolling */
-   setTimeout(function (){
-      if (autoscrolling) {
-         contents.getNext(changeImg);
-         setTimeout(arguments.callee, 5000);
+
+
+   var contents = new contentsLoader(getLocationSet(location.host));
+   var scroller = new autoScroller(5000);
+
+   /* remove element */
+   head = document.getElementsByTagName('head')[0];
+   while (head.childNodes.length != 0) {
+      head.removeChild(head.firstChild);
+   }
+   while (document.body.childNodes.length != -0) {
+      document.body.removeChild(document.body.firstChild);
+   }
+   
+   /* prepare new page */
+   document.body.width = "100%";
+   document.body.height = "1372px";
+   document.body.style.margin = "0px";
+   
+   var container = document.createElement('div');
+   container.id = "imagearea";
+   container.style.width = "100%";
+   container.style.height = "1372px";
+   document.body.appendChild(container);
+   container.appendChild(document.createElement('img'));
+   
+   container.addEventListener('click', function(e) {
+      scroller.stop();
+      if (!lock) {
+         if (e.x < document.body.clientWidth / 2) {
+            contents.getPrevious(changeImg);
+         } else {
+            contents.getNext(changeImg);
+         }
       }
-   }, 0);
+   }, true);
+
+   /* start slideshow */
+   scroller.start();
    setTimeout(scrollTo, 100, 0, 1);
 })()
