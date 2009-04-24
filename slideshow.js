@@ -1,17 +1,27 @@
 (function (){
    const keycodeMap = {left:37, up:38, right:39, down:40};
-   var lock = false;
+   var animating = false;
 
-
-   /* load images beyond pages */
-   function contentsLoader(set) {
+   function getImageLoader(imglist){
       var loading = false;
-      var imglist = [];
-      getContentImages(set.xpath, document);
-
-      var current = -1;
-      var page    = 1;
-
+      function xhr(url, proc){
+         if (!loading) {
+            loading = true;
+            r = new XMLHttpRequest();
+            if (r) {
+               r.onreadystatechange = function() {
+                  if (r.readyState == 4 && r.status == 200) {
+                     proc(r.responseText);
+                     loading = false;
+	              }
+               };
+               r.open("GET", url);
+		       r.send(null);
+            } else {
+               alert("failed to create xmlhttprequest object");
+            }
+         }
+      };
       function getContentImages(xpath, root) {
          imgs = document.evaluate(xpath, root, null, 7, null);
          for (var i=0,max=imgs.snapshotLength;i<max;i++) {
@@ -19,45 +29,47 @@
          }
       };
 
-      function addElements(proc) {
-         loading = true;
-         r = new XMLHttpRequest();
-         if (r) {
-            r.onreadystatechange = function() {
-               if (r.readyState == 4 && r.status == 200) {
-                  div = document.createElement('div');
-                  div.style.display = "none";
-                  div.innerHTML = r.responseText;
-                  document.body.appendChild(div);
-                  getContentImages(set.xpath, document);
-                  document.body.removeChild(div);
-                  loading = false;
-                  proc(imglist[++current]);
-	           }
-            };
-            r.open("GET", set.pager+(++page));
-		    r.send(null);
-         } else {
-            alert("failed to create xmlhttprequest object");
+
+      var loaders = [];
+      loaders["4u.straightline.jp"] = function(proc, current){
+         page = ((typeof(page)=="undefined")?1:page);
+         xhr("./?page="+page, function(text){
+            page++;
+            div = document.createElement('div');
+            div.style.display = "none";
+            div.innerHTML = text;
+            document.body.appendChild(div);
+            getContentImages("//div[@class='entry-photo']/a/img", document);
+            document.body.removeChild(div);
+         });
+      };
+
+
+      for (key in loaders) {
+         if ( location.host.search(new RegExp(key)) != -1 ) {
+            return loaders[key];
          }
       }
+      return (function(){});
+   };
 
-      this.getNext = function(proc) {
+   var ContentsContainer = function() {
+      imglist = [];
+      current = -1;
+      loader = getImageLoader(imglist);
+
+      this.getNext = function(proc){
          proc = proc || (function(){});
-         
-         if (current > imglist.length-10 && !loading) {
-            /* load new page */
-            addElements(function(){});
+         if (current > imglist.length-10) {
+            loader(proc, current);
          }
          if (current+1 < imglist.length) {
             proc(imglist[++current]);
             if (current - 10 > 0) {
-               /* remove old images */
                imglist[current-10] = undefined;
             }
          }
       };
-
       this.getPrevious = function(proc) {
          proc = proc || (function(){});
          if (current > 0 && imglist[current-1]) {
@@ -66,44 +78,22 @@
       };
    };
 
-   function autoScroller(wait){
-      var autoscrolling = false;
+   var AutoScroller = function (container, wait){
+      autoscrolling = false;
       this.start = function(){
          autoscrolling = true;
+         container.getNext(changeImg);
          scroll();
       };
       this.stop = function(){
          autoscrolling = false;
       };
       function scroll(){
-         setTimeout(function (){
-            if (autoscrolling) {
-               contents.getNext(changeImg);
-               setTimeout(arguments.callee, wait);
-            }
-         }, 0);
+         if (autoscrolling) {
+            container.getNext(changeImg);
+            setTimeout(arguments.callee, wait);
+         }
       };
-   };
-
-   function getLocationSet(location){
-      var locations = [];
-      locations["4u.straightline.jp"] = {
-         xpath : "//div[@class='entry-photo']/a/img",
-         pager : "./?page="
-      };
-      locations["www.flickr.com"] = {
-         xpath : "//img[@class='pc_img']",
-         pager : "./search/?q=westie&s=int&page="
-      };
-      locations["okinny.heypo.net"] = {
-         xpath : "//div[@class='img']/a/img",
-         pager : "./page/"
-      };
-      locations["okinny.tumblr.com"] = {
-         xpath : "//div[@class='photo']/a/img",
-         pager : "./page/"
-      };
-      return locations[location] || {xpath:"//img", pager:"./?page="};
    };
 
    function changeImg(img){
@@ -117,9 +107,9 @@
             if (ia.childNodes.length > 1) {
                ia.removeChild(ia.firstChild);
             }
-            lock = false;
+            animating = false;
          }
-      }
+      };
 
       img.style.position = "absolute";
       img.style.margin = "0px";
@@ -127,13 +117,11 @@
       img.style.opacity = 0;
       document.getElementById('imagearea').appendChild(img);
       setTimeout(animate, 40);
-      lock = true;
+      animating = true;
    };
 
-
-
-   var contents = new contentsLoader(getLocationSet(location.host));
-   var scroller = new autoScroller(5000);
+   var container = new ContentsContainer();
+   var scroller = new AutoScroller(container, 5000);
 
    /* remove element */
    head = document.getElementsByTagName('head')[0];
@@ -149,20 +137,22 @@
    document.body.height = "1372px";
    document.body.style.margin = "0px";
    
-   var container = document.createElement('div');
-   container.id = "imagearea";
-   container.style.width = "100%";
-   container.style.height = "1372px";
-   document.body.appendChild(container);
-   container.appendChild(document.createElement('img'));
-   
-   container.addEventListener('click', function(e) {
+   var div = document.createElement('div');
+   div.id = "imagearea";
+   div.style.width = "100%";
+   div.style.height = "1372px";
+   document.body.appendChild(div);
+   h2 = document.createElement('h2');
+   h2.innerText = "Loading...";
+   div.appendChild(h2);
+
+   div.addEventListener('click', function(e) {
       scroller.stop();
-      if (!lock) {
+      if (!animating) {
          if (e.x < document.body.clientWidth / 2) {
-            contents.getPrevious(changeImg);
+            container.getPrevious(changeImg);
          } else {
-            contents.getNext(changeImg);
+            container.getNext(changeImg);
          }
       }
    }, true);
