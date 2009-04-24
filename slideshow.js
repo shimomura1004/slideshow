@@ -91,7 +91,6 @@
 
    var contents = new contentsLoader(getLocationSet(location.host));
 
-
    function prepareSlideShowPage(){
       function removeOriginalElements(){
          head = document.getElementsByTagName('head')[0];
@@ -102,8 +101,6 @@
             document.body.removeChild(document.body.firstChild);
          }
       };
-      removeOriginalElements();
-
       function prepareNewPage(){
          document.body.width = "100%";
          document.body.height = "1372px";
@@ -126,6 +123,8 @@
             }
          }, true);
       };
+
+      removeOriginalElements();
       prepareNewPage();
    };
    prepareSlideShowPage();
@@ -152,9 +151,12 @@
       document.getElementById('imagearea').appendChild(img);
       setTimeout(animate, 40);
       lock = true;
-   }
+   };
 
-   contents.getNext(changeImg);
-
+   /* auto scrolling */
+   setTimeout(function (){
+      contents.getNext(changeImg);
+      setTimeout(arguments.callee, 5000);
+   }, 0);
    setTimeout(scrollTo, 100, 0, 1);
 })()
