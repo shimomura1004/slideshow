@@ -1,6 +1,7 @@
 (function (){
    const keycodeMap = {left:37, up:38, right:39, down:40};
    var lock = false;
+   var autoscrolling = true;
 
    /* load images beyond pages */
    function contentsLoader(set) {
@@ -114,6 +115,7 @@
          container.appendChild(document.createElement('img'));
          
          container.addEventListener('click', function(e) {
+            autoscrolling = false;
             if (!lock) {
                if (e.x < document.body.clientWidth / 2) {
                   contents.getPrevious(changeImg);
@@ -155,8 +157,10 @@
 
    /* auto scrolling */
    setTimeout(function (){
-      contents.getNext(changeImg);
-      setTimeout(arguments.callee, 5000);
+      if (autoscrolling) {
+         contents.getNext(changeImg);
+         setTimeout(arguments.callee, 5000);
+      }
    }, 0);
    setTimeout(scrollTo, 100, 0, 1);
 })()
