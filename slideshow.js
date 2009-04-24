@@ -1,4 +1,5 @@
 (function (){
+   const waitTime = 5000;
    const keycodeMap = {left:37, up:38, right:39, down:40};
    var animating = false;
 
@@ -79,11 +80,15 @@
    };
 
    var AutoScroller = function (container, wait){
+      alreadyExist = false;
       autoscrolling = false;
       this.start = function(){
-         autoscrolling = true;
-         container.getNext(changeImg);
-         scroll();
+         if (!alreadyExist) {
+            autoscrolling = true;
+            alreadyExist = true;
+            container.getNext(changeImg);
+            scroll();
+         }
       };
       this.stop = function(){
          autoscrolling = false;
@@ -92,6 +97,8 @@
          if (autoscrolling) {
             container.getNext(changeImg);
             setTimeout(arguments.callee, wait);
+         } else {
+            alreadyExist = false;
          }
       };
    };
@@ -120,8 +127,9 @@
       animating = true;
    };
 
+
    var container = new ContentsContainer();
-   var scroller = new AutoScroller(container, 5000);
+   var scroller = new AutoScroller(container, waitTime);
 
    /* remove element */
    head = document.getElementsByTagName('head')[0];
@@ -136,23 +144,54 @@
    document.body.width = "100%";
    document.body.height = "1372px";
    document.body.style.margin = "0px";
-   
-   var div = document.createElement('div');
-   div.id = "imagearea";
-   div.style.width = "100%";
-   div.style.height = "1372px";
-   document.body.appendChild(div);
+
+   var mainwindow = document.createElement('div');
+   mainwindow.id = "imagearea";
+   mainwindow.style.width = "100%";
+   mainwindow.style.height = "1372px";
+   document.body.appendChild(mainwindow);
    h2 = document.createElement('h2');
    h2.innerText = "Loading...";
-   div.appendChild(h2);
+   mainwindow.appendChild(h2);
+   
+   /* prepare menu */
+   var menu = document.createElement('div');
+   menu.id = 'menu';
+   menu.style.position = 'absolute';
+   menu.style.top = '0px';
+   menu.style.margin = '0px';
+   menu.style.width = '100%';
+   menu.style.backgroundColor = 'gray';
+   menu.style.zIndex = '100';
+   menu.style.opacity = 0.8;
+   menu.style.display = 'none';
+   var play = document.createElement('h3');
+   var a = document.createElement('a');
+   a.innerText = "play";
+   a.style.margin = '3px';
+   play.appendChild(a);
+   menu.appendChild(play);
+   document.body.appendChild(menu);
 
-   div.addEventListener('click', function(e) {
+   play.addEventListener('click', function(e) {
+      scroller.start();
+      menu.style.display = 'none';
+   }, true);
+   mainwindow.addEventListener('click', function(e) {
       scroller.stop();
       if (!animating) {
-         if (e.x < document.body.clientWidth / 2) {
-            container.getPrevious(changeImg);
+         if (e.y < 50) {
+            menu.style.display = 'block';
+            setTimeout(function(){
+               menu.style.display = 'none';
+            }, waitTime);
          } else {
-            container.getNext(changeImg);
+            menu.style.display = 'none';
+            if (e.x < document.body.clientWidth / 2) {
+               container.getPrevious(changeImg);
+            } else {
+               container.getNext(changeImg);
+            }
          }
       }
    }, true);
