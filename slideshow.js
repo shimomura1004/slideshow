@@ -34,7 +34,7 @@
       var loaders = [];
       loaders["4u.straightline.jp"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
-         xhr("./?page="+page, function(text){
+         xhr("/?page="+page, function(text){
             page++;
             div = document.createElement('div');
             div.style.display = "none";
@@ -46,7 +46,15 @@
       };
       loaders["okinny.heypo.net"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
-         xhr("./?page="+page, function(text){
+
+         url = "";
+         dirs = location.pathname.split('/');
+         if (dirs[dirs.length-2] == 'page') {
+            url = dirs.slice(0,dirs.length-2).join('/');
+         }
+         url += "/page/"+page;
+
+         xhr(url, function(text){
             page++;
             div = document.createElement('div');
             div.style.display = "none";
@@ -56,9 +64,9 @@
             document.body.removeChild(div);
          });
       };
-      loaders[".*tumblr.com"] = function(proc, current){
+      loaders[".*tumblr.*com"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
-         xhr("./?page="+page, function(text){
+         xhr("/page/"+page, function(text){
             page++;
             div = document.createElement('div');
             div.style.display = "none";
@@ -203,7 +211,7 @@
    mainwindow.addEventListener('click', function(e) {
       scroller.stop();
       if (!animating) {
-         if (e.y < 50) {
+         if (e.y < 100) {
             menu.style.display = 'block';
             setTimeout(function(){
                menu.style.display = 'none';
