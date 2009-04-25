@@ -44,35 +44,114 @@
             document.body.removeChild(div);
          });
       };
-      loaders["okinny.heypo.net"] = function(proc, current){
-         page = ((typeof(page)=="undefined")?1:page);
-
-         url = "";
-         dirs = location.pathname.split('/');
-         if (dirs[dirs.length-2] == 'page') {
-            url = dirs.slice(0,dirs.length-2).join('/');
-         }
-         url += "/page/"+page;
-
-         xhr(url, function(text){
-            page++;
-            div = document.createElement('div');
-            div.style.display = "none";
-            div.innerHTML = text;
-            document.body.appendChild(div);
-            getContentImages("//div[@class='img']/a/img", document);
-            document.body.removeChild(div);
-         });
-      };
       loaders[".*tumblr.*com"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
-         xhr("/page/"+page, function(text){
+         url  = ((typeof(url) =="undefined")?(function(){
+            dirs = location.pathname.split('/');
+            if (dirs[dirs.length-2] == 'page') {
+               return dirs.slice(0,dirs.length-2).join('/');
+            } else if (dirs[1] == 'post') {
+               return "";
+            } else {
+               return location.pathname;
+            }
+         })():url);
+
+         xhr(url+"/page/"+page, function(text){
             page++;
             div = document.createElement('div');
             div.style.display = "none";
             div.innerHTML = text;
             document.body.appendChild(div);
             getContentImages("//div[@class='photo']/a/img", document);
+            document.body.removeChild(div);
+         });
+      };
+/*
+      loaders["images.google.*"] = function(proc, current){
+         page = ((typeof(page)=="undefined")?0:page);
+         url  = ((typeof(url) =="undefined")?(function(){
+            options = location.search.split('&');
+            key = "";
+            for (var i=0,max=options.length;i<max;i++){
+               if (options[i].slice(0,2) == "q=") {
+                  key = options[i].slice(2);
+                  break;
+               }
+            }
+            return "/images?hl=en&q="+key+"&sa=N&ndsp=20&start=";
+         })():url);
+
+         xhr(url+(page*20), function(text){
+            page++;
+            div = document.createElement('div');
+            div.style.display = "none";
+            div.innerHTML = text;
+            document.body.appendChild(div);
+            scripts = document.evaluate("//script",document, null, 7, null);
+            head = document.getElementsByTagName('head')[0];
+            for (var i=0,max=scripts.snapshotLength;i<max;i++){
+               scr = document.createElement('script');
+               scr.innerHTML = scripts.snapshotItem(i).innerHTML;
+               head.appendChild(scr);
+               head.removeChild(scr);
+            }
+
+            urls = document.evaluate("//table[@class='ts']"+
+                                     "/tbody/tr/td/a/img",
+                                     document, null, 7, null);
+alert(urls.snapshotLength);
+            for (var i=0,max=urls.snapshotLength;i<max;i++){
+               newimg = document.createElement('img');
+               newimg.href = 'http'+urls.split('http')[2];
+               imglist[imglist.length] = newimg;
+            }
+            document.body.removeChild(div);
+         });
+      };
+*/
+      loaders["image.baidu.jp"] = function(proc, current){
+         page = ((typeof(page)=="undefined")?1:page);
+         url  = ((typeof(url) =="undefined")?(function(){
+            options = location.search.split('&');
+            key = "";
+            for (var i=0,max=options.length;i<max;i++){
+               if (options[i].slice(0,5) == "word=") {
+                  key = options[i].slice(5);
+                  break;
+               }
+            }
+            return "/i"+"?ct=201326592&lm=-1&word="+key+"&z=0&sa=0&sf=0&st=40&tn=baiduimage&pn=32&cl=2&pg=";
+         })():url);
+
+         xhr(url+page, function(text){
+            page++;
+            div = document.createElement('div');
+            div.style.display = "none";
+            div.innerHTML = text;
+            document.body.appendChild(div);
+            getContentImages("//a[@class='imgbox']/img", document);
+            document.body.removeChild(div);
+         });
+      };
+      loaders["okinny.heypo.net"] = function(proc, current){
+         page = ((typeof(page)=="undefined")?1:page);
+         url  = ((typeof(url) =="undefined")?(function(){
+            dirs = location.pathname.split('/');
+            if (dirs[dirs.length-2] == 'page') {
+               return dirs.slice(0,dirs.length-2).join('/');
+            } else {
+               return location.pathname;
+            }
+         })():url);
+
+         xhr(url+"/page/"+page, function(text){
+            page++;
+            div = document.createElement('div');
+            div.style.display = "none";
+            div.innerHTML = text;
+            document.body.appendChild(div);
+            getContentImages("//div[@class='img']/a/img", document);
             document.body.removeChild(div);
          });
       };
@@ -197,13 +276,16 @@
    menu.style.zIndex = '100';
    menu.style.opacity = 0.8;
    menu.style.display = 'none';
+   /* play button */
    var play = document.createElement('a');
    play.innerText = "play";
    play.style.margin = '10px';
    play.style.fontSize = '50pt';
    menu.appendChild(play);
-   document.body.appendChild(menu);
+   /* textbox for wait time */
+   
 
+   document.body.appendChild(menu);
    play.addEventListener('click', function(e) {
       scroller.start();
       menu.style.display = 'none';
