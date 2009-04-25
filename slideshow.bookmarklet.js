@@ -1,1 +1,1 @@
-javascript:(function(){var scr=document.createElement('script');scr.src="http://github.com/shimomura1004/slideshow/raw/f175f3bdd397b227fb02a269d2d46f1e678531aa/slideshow.js";scr.type="text/javascript";document.body.appendChild(scr);})()
+javascript:(function(){var scr=document.createElement('script');scr.src="http://github.com/shimomura1004/slideshow/raw/27bd680e31abda47c50973e1bd2c481981caa2f6/slideshow.js";scr.type="text/javascript";document.body.appendChild(scr);})()
