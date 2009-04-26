@@ -1,5 +1,5 @@
 (function (){
-   const waitTime = 5000;
+   const defaultWaitTime = 5000;
    const keycodeMap = {left:37, up:38, right:39, down:40};
    var animating = false;
 
@@ -141,7 +141,11 @@ alert(urls.snapshotLength);
             if (dirs[dirs.length-2] == 'page') {
                return dirs.slice(0,dirs.length-2).join('/');
             } else {
-               return location.pathname;
+               if (location.pathname == "/") {
+                  return "";
+               } else {
+                  return location.pathname;
+               }
             }
          })():url);
 
@@ -190,20 +194,23 @@ alert(urls.snapshotLength);
       };
    };
 
-   var AutoScroller = function (container, wait){
+   var AutoScroller = function (container, waitTime){
+      wait = waitTime;
       alreadyExist = false;
       autoscrolling = false;
       this.start = function(){
          if (!alreadyExist) {
             autoscrolling = true;
             alreadyExist = true;
-            container.getNext(changeImg);
             scroll();
          }
       };
       this.stop = function(){
          autoscrolling = false;
       };
+      this.changeWait = function(waitTime) {
+         wait = waitTime;
+      }
       function scroll(){
          if (autoscrolling) {
             container.getNext(changeImg);
@@ -240,7 +247,7 @@ alert(urls.snapshotLength);
 
 
    var container = new ContentsContainer();
-   var scroller = new AutoScroller(container, waitTime);
+   var scroller = new AutoScroller(container, defaultWaitTime);
 
    /* remove element */
    head = document.getElementsByTagName('head')[0];
@@ -272,6 +279,7 @@ alert(urls.snapshotLength);
    menu.style.top = '0px';
    menu.style.margin = '0px';
    menu.style.width = '100%';
+   menu.style.height = '150px';
    menu.style.backgroundColor = 'gray';
    menu.style.zIndex = '100';
    menu.style.opacity = 0.8;
@@ -283,7 +291,24 @@ alert(urls.snapshotLength);
    play.style.fontSize = '50pt';
    menu.appendChild(play);
    /* textbox for wait time */
-   
+   var waitSelect = document.createElement('select');
+   waitSelect.style.fontSize = "50pt";
+   waitSelect.innerHTML = "<option value='slow'>10sec</option>"+
+      "<option value='normal' selected='true'>5sec</option>"+
+      "<option value='fast'>3sec</option>";
+   menu.appendChild(waitSelect);
+   waitSelect.addEventListener('change', function(e){
+      e.stopPropagation();
+      switch (waitSelect.selectedIndex) {
+         case 0: scroller.changeWait(10000); break;
+         case 1: scroller.changeWait(5000);  break;
+         case 2: scroller.changeWait(3000);  break;
+      }
+      scroller.start();
+      menu.style.display = 'none';
+      setTimeout(scrollTo, 100, 0, 1);      
+   }, true);
+
 
    document.body.appendChild(menu);
    play.addEventListener('click', function(e) {
@@ -297,7 +322,7 @@ alert(urls.snapshotLength);
             menu.style.display = 'block';
             setTimeout(function(){
                menu.style.display = 'none';
-            }, waitTime);
+            }, defaultWaitTime);
          } else {
             menu.style.display = 'none';
             if (e.x < document.body.clientWidth / 2) {
