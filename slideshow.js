@@ -53,7 +53,11 @@
             } else if (dirs[1] == 'post') {
                return "";
             } else {
-               return location.pathname;
+               if (location.pathname == "/") {
+                  return "";
+               } else {
+                  return location.pathname;
+               }
             }
          })():url);
 
@@ -289,6 +293,10 @@ alert(urls.snapshotLength);
    play.innerText = "play";
    play.style.margin = '10px';
    play.style.fontSize = '50pt';
+   play.addEventListener('click', function(e) {
+      scroller.start();
+      menu.style.display = 'none';
+   }, true);
    menu.appendChild(play);
    /* textbox for wait time */
    var waitSelect = document.createElement('select');
@@ -309,12 +317,7 @@ alert(urls.snapshotLength);
       setTimeout(scrollTo, 100, 0, 1);      
    }, true);
 
-
    document.body.appendChild(menu);
-   play.addEventListener('click', function(e) {
-      scroller.start();
-      menu.style.display = 'none';
-   }, true);
    mainwindow.addEventListener('click', function(e) {
       scroller.stop();
       if (!animating) {
