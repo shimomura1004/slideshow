@@ -67,7 +67,7 @@
             div.style.display = "none";
             div.innerHTML = text;
             document.body.appendChild(div);
-            getContentImages("//div[@class='photo']/a/img", document);
+            getContentImages("//img", document);
             document.body.removeChild(div);
          });
       };
@@ -301,7 +301,8 @@ alert(urls.snapshotLength);
    /* textbox for wait time */
    var waitSelect = document.createElement('select');
    waitSelect.style.fontSize = "50pt";
-   waitSelect.innerHTML = "<option value='slow'>10sec</option>"+
+   waitSelect.innerHTML =
+      "<option value='slow'>10sec</option>"+
       "<option value='normal' selected='true'>5sec</option>"+
       "<option value='fast'>3sec</option>";
    menu.appendChild(waitSelect);
