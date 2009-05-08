@@ -83,49 +83,6 @@
             document.body.removeChild(div);
          });
       };
-/*
-      loaders["images.google.*"] = function(proc, current){
-         page = ((typeof(page)=="undefined")?0:page);
-         url  = ((typeof(url) =="undefined")?(function(){
-            options = location.search.split('&');
-            key = "";
-            for (var i=0,max=options.length;i<max;i++){
-               if (options[i].slice(0,2) == "q=") {
-                  key = options[i].slice(2);
-                  break;
-               }
-            }
-            return "/images?hl=en&q="+key+"&sa=N&ndsp=20&start=";
-         })():url);
-
-         xhr(url+(page*20), function(text){
-            page++;
-            div = document.createElement('div');
-            div.style.display = "none";
-            div.innerHTML = text;
-            document.body.appendChild(div);
-            scripts = document.evaluate("//script",document, null, 7, null);
-            head = document.getElementsByTagName('head')[0];
-            for (var i=0,max=scripts.snapshotLength;i<max;i++){
-               scr = document.createElement('script');
-               scr.innerHTML = scripts.snapshotItem(i).innerHTML;
-               head.appendChild(scr);
-               head.removeChild(scr);
-            }
-
-            urls = document.evaluate("//table[@class='ts']"+
-                                     "/tbody/tr/td/a/img",
-                                     document, null, 7, null);
-alert(urls.snapshotLength);
-            for (var i=0,max=urls.snapshotLength;i<max;i++){
-               newimg = document.createElement('img');
-               newimg.href = 'http'+urls.split('http')[2];
-               imglist[imglist.length] = newimg;
-            }
-            document.body.removeChild(div);
-         });
-      };
-*/
       loaders["image.baidu.jp"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
          url  = ((typeof(url) =="undefined")?(function(){
