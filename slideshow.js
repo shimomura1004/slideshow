@@ -44,6 +44,18 @@
             document.body.removeChild(div);
          });
       };
+      loaders["www.pixiv.net"] = function(proc, current){
+          page = ((typeof(page)=="undefined")?1:page);
+          xhr("/index.php?s_mode=s_tag&word=%E3%82%A2%E3%83%8A%E3%83%AD%E7%86%8A&p="+page, function(text){
+                  page++;
+                  div = document.createElement('div');
+                  div.style.display = "none";
+            div.innerHTML = text;
+            document.body.appendChild(div);
+            getContentImages("//div[@id='illust_c5']/ul/li/a/img", document);
+            document.body.removeChild(div);
+              });
+      };
       loaders[".*tumblr.*com"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
          url  = ((typeof(url) =="undefined")?(function(){
