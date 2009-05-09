@@ -2,7 +2,7 @@
    const defaultWaitTime = 5000;
    const keycodeMap = {left:37, up:38, right:39, down:40};
    var fading = false;
-   var shouldFade = true;
+   var shouldFade = false;
 
    function getImageLoader(imglist){
       var loading = false;
@@ -306,8 +306,8 @@
    var fadeSelect = document.createElement('select');
    fadeSelect.style.fontSize = "50pt";
    fadeSelect.innerHTML =
-      "<option value='fade' selected='true'>Fade</option>"+
-      "<option value='nowait'>NoWait</option>";
+      "<option value='nowait' selected='true'>NoWait</option>"+
+      "<option value='fade'>Fade</option>";
    fadeSelect.addEventListener('change', function(e){
       e.stopPropagation();
       if (fadeSelect.selectedIndex == 0) {
