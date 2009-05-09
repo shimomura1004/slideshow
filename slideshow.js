@@ -134,14 +134,26 @@
             document.body.removeChild(div);
          });
       };
-
+      loaders[".*"] = function(proc, current){
+         isFirst = ((typeof(isFirst)=="undefined")?true:isFirst);
+         if (isFirst) {
+            xhr(location.pathname, function(text){
+               div = document.createElement('div');
+               div.style.display = "none";
+               div.innerHTML = text;
+               document.body.appendChild(div);
+               getContentImages("//img", document);
+               document.body.removeChild(div);
+            });
+            isFirst = false;
+         }
+      };
 
       for (key in loaders) {
          if ( location.host.search(new RegExp(key)) != -1 ) {
             return loaders[key];
          }
       }
-      return (function(){});
    };
 
    var ContentsContainer = function() {
