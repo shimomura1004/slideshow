@@ -276,6 +276,7 @@
    play.type = 'button';
    play.innerText = "Play";
    play.style.fontSize = '50pt';
+   play.style.marginTop = '10px';
    play.addEventListener('click', function(e) {
       scroller.start();
       menu.style.display = 'none';
@@ -314,6 +315,8 @@
       } else {
          shouldFade = false;
       }
+      scroller.start();
+      menu.style.display = 'none';
       setTimeout(scrollTo, 100, 0, 1);
    }, true);
    menu.appendChild(fadeSelect);
@@ -322,7 +325,7 @@
    mainwindow.addEventListener('click', function(e) {
       scroller.stop();
       if (!fading) {
-         if (e.y < 100) {
+         if (e.y < 150) {
             menu.style.display = 'block';
             setTimeout(function(){
                menu.style.display = 'none';
