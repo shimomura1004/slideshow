@@ -263,6 +263,7 @@
    menu.id = 'menu';
    menu.style.position = 'absolute';
    menu.style.top = '0px';
+   menu.style.textAlign = 'center';
    menu.style.margin = '0px';
    menu.style.width = '100%';
    menu.style.height = '150px';
@@ -271,9 +272,9 @@
    menu.style.opacity = 0.8;
    menu.style.display = 'none';
    /* play button */
-   var play = document.createElement('a');
-   play.innerText = "play";
-   play.style.margin = '10px';
+   var play = document.createElement('button');
+   play.type = 'button';
+   play.innerText = "Play";
    play.style.fontSize = '50pt';
    play.addEventListener('click', function(e) {
       scroller.start();
@@ -281,14 +282,13 @@
       setTimeout(scrollTo, 100, 0, 1);
    }, true);
    menu.appendChild(play);
-   /* textbox for wait time */
+   /* selectbox for wait time */
    var waitSelect = document.createElement('select');
    waitSelect.style.fontSize = "50pt";
    waitSelect.innerHTML =
       "<option value='slow'>10sec</option>"+
       "<option value='normal' selected='true'>5sec</option>"+
       "<option value='fast'>3sec</option>";
-   menu.appendChild(waitSelect);
    waitSelect.addEventListener('change', function(e){
       e.stopPropagation();
       switch (waitSelect.selectedIndex) {
@@ -300,12 +300,13 @@
       menu.style.display = 'none';
       setTimeout(scrollTo, 100, 0, 1);      
    }, true);
+   menu.appendChild(waitSelect);
+   /* selectbox for fade/nowait */
    var fadeSelect = document.createElement('select');
    fadeSelect.style.fontSize = "50pt";
    fadeSelect.innerHTML =
       "<option value='fade' selected='true'>Fade</option>"+
       "<option value='nowait'>NoWait</option>";
-   menu.appendChild(fadeSelect);
    fadeSelect.addEventListener('change', function(e){
       e.stopPropagation();
       if (fadeSelect.selectedIndex == 0) {
@@ -315,6 +316,7 @@
       }
       setTimeout(scrollTo, 100, 0, 1);
    }, true);
+   menu.appendChild(fadeSelect);
 
    document.body.appendChild(menu);
    mainwindow.addEventListener('click', function(e) {
