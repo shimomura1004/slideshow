@@ -223,19 +223,23 @@
          }
       };
 
+      switch (window.orientation) {
+         case 0:
+            img.style.width = "100%";
+            break;
+         case 90: case -90: default:
+            img.style.height = "100%";
+            break;
+      }
+      img.style.position = "absolute";
+      img.style.margin = "0px";
+      document.getElementById('imagearea').appendChild(img);
+      
       if(shouldFade) {
-         img.style.position = "absolute";
-         img.style.margin = "0px";
-         img.style.width = "100%";
          img.style.opacity = 0;
-         document.getElementById('imagearea').appendChild(img);
          setTimeout(fade, 40);
          fading = true;
       } else {
-         img.style.position = "absolute";
-         img.style.margin = "0px";
-         img.style.width = "100%";
-         document.getElementById('imagearea').appendChild(img);
          ia = document.getElementById('imagearea');
          if (ia.childNodes.length > 1) {
             ia.removeChild(ia.firstChild);
@@ -351,6 +355,10 @@
             }
          }
       }
+   }, true);
+
+   document.addEventListener('onorientationchange', function(e){
+      setTimeout(scrollTo, 100, 0, 1);
    }, true);
 
    /* start slideshow */
