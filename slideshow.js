@@ -1,11 +1,13 @@
 (function (){
    const defaultWaitTime = 5000;
    const keycodeMap = {left:37, up:38, right:39, down:40};
-   var animating = false;
+   var fading = false;
+   var shouldFade = true;
 
    function getImageLoader(imglist){
       var loading = false;
-      function xhr(url, proc){
+
+      function xhr(dir, proc){
          if (!loading) {
             loading = true;
             r = new XMLHttpRequest();
@@ -16,7 +18,7 @@
                      loading = false;
 	              }
                };
-               r.open("GET", url);
+               r.open("GET", dir);
 		       r.send(null);
             } else {
                alert("failed to create xmlhttprequest object");
@@ -195,27 +197,38 @@
    };
 
    function changeImg(img){
-      function animate() {
+      function fade() {
          if ( parseFloat(img.style.opacity) < 1 ) {
             img.style.opacity =
                (parseFloat(img.style.opacity) + 0.2).toString();
-            setTimeout(animate, 40);
+            setTimeout(fade, 40);
          } else {
             ia = document.getElementById('imagearea');
             if (ia.childNodes.length > 1) {
                ia.removeChild(ia.firstChild);
             }
-            animating = false;
+            fading = false;
          }
       };
 
-      img.style.position = "absolute";
-      img.style.margin = "0px";
-      img.style.width = "100%";
-      img.style.opacity = 0;
-      document.getElementById('imagearea').appendChild(img);
-      setTimeout(animate, 40);
-      animating = true;
+      if(shouldFade) {
+         img.style.position = "absolute";
+         img.style.margin = "0px";
+         img.style.width = "100%";
+         img.style.opacity = 0;
+         document.getElementById('imagearea').appendChild(img);
+         setTimeout(fade, 40);
+         fading = true;
+      } else {
+         img.style.position = "absolute";
+         img.style.margin = "0px";
+         img.style.width = "100%";
+         document.getElementById('imagearea').appendChild(img);
+         ia = document.getElementById('imagearea');
+         if (ia.childNodes.length > 1) {
+            ia.removeChild(ia.firstChild);
+         }
+      }
    };
 
 
@@ -265,6 +278,7 @@
    play.addEventListener('click', function(e) {
       scroller.start();
       menu.style.display = 'none';
+      setTimeout(scrollTo, 100, 0, 1);
    }, true);
    menu.appendChild(play);
    /* textbox for wait time */
@@ -286,11 +300,26 @@
       menu.style.display = 'none';
       setTimeout(scrollTo, 100, 0, 1);      
    }, true);
+   var fadeSelect = document.createElement('select');
+   fadeSelect.style.fontSize = "50pt";
+   fadeSelect.innerHTML =
+      "<option value='fade' selected='true'>Fade</option>"+
+      "<option value='nowait'>NoWait</option>";
+   menu.appendChild(fadeSelect);
+   fadeSelect.addEventListener('change', function(e){
+      e.stopPropagation();
+      if (fadeSelect.selectedIndex == 0) {
+         shouldFade = true;
+      } else {
+         shouldFade = false;
+      }
+      setTimeout(scrollTo, 100, 0, 1);
+   }, true);
 
    document.body.appendChild(menu);
    mainwindow.addEventListener('click', function(e) {
       scroller.stop();
-      if (!animating) {
+      if (!fading) {
          if (e.y < 100) {
             menu.style.display = 'block';
             setTimeout(function(){
