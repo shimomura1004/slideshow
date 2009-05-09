@@ -1,1 +1,39 @@
-use as bookmarklet
+You can use this script as bookmarklet.
+
+==============================
+  How To Install
+==============================
+
+1. Bookmark this URL in Safari:
+javascript:(function(){var scr=document.createElement('script');scr.src="http://github.com/shimomura1004/slideshow/raw/97aae9cf3d4e4cff6d42d3f75ce7aca5a9841f51/slideshow.js";scr.type="text/javascript";document.body.appendChild(scr);})()
+
+2. Sync your iPhone/iPod
+That's all.
+
+Note that you have to change the bookmarklet URL when the latest
+version is committed or you would use older version.
+
+==============================
+  How To Use
+==============================
+
+iPhone/iPod's display
++-----------------+
+|       menu      |
++-----------------+
+|        |        |
+|        |        |
+|        |        |
+|        |        |
+|  prev  |  next  |
+|        |        |
+|        |        |
+|        |        |
++--------+--------+
+
+1. Goto a site and open your slideshow bookmarklet.
+
+2. Tap the left/right part of the screen,
+   you can move forward/backward.
+
+3. Tap the upper part of screen and you can access the menu.
