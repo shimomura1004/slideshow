@@ -357,7 +357,7 @@
       }
    }, true);
 
-   document.addEventListener('onorientationchange', function(e){
+   document.addEventListener('orientationchange', function(e){
       setTimeout(scrollTo, 100, 0, 1);
    }, true);
 
