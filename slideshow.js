@@ -36,15 +36,23 @@
       var loaders = [];
       loaders["4u.straightline.jp"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
-         xhr("/?page="+page, function(text){
+         if (page == 1) {
+            div = document.getElementById('body');
+            getContentImages("//div[@class='entry-photo']/a/img",
+                             document);
             page++;
-            div = document.createElement('div');
-            div.style.display = "none";
-            div.innerHTML = text;
-            document.body.appendChild(div);
-            getContentImages("//div[@class='entry-photo']/a/img", document);
-            document.body.removeChild(div);
-         });
+         } else {
+            xhr("/?page="+page, function(text){
+               page++;
+               div = document.createElement('div');
+               div.style.display = "none";
+               div.innerHTML = text;
+               document.body.appendChild(div);
+               getContentImages("//div[@class='entry-photo']/a/img",
+                                document);
+               document.body.removeChild(div);
+            });
+         }
       };
       loaders["www.pixiv.net"] = function(proc, current){
           page = ((typeof(page)=="undefined")?1:page);
@@ -251,15 +259,24 @@
    var container = new ContentsContainer();
    var scroller = new AutoScroller(container, defaultWaitTime);
 
-   /* remove element */
    head = document.getElementsByTagName('head')[0];
+   previousHead = document.createElement('div');
+   previousHead.style.display = 'none';
    while (head.childNodes.length != 0) {
-      head.removeChild(head.firstChild);
+      node = head.firstChild;
+      head.removeChild(node);
+      previousHead.appendChild(node);
    }
-   while (document.body.childNodes.length != -0) {
-      document.body.removeChild(document.body.firstChild);
+   previousBody = document.createElement('div');
+   previousBody.style.display = 'none';
+   while (document.body.childNodes.length != 0) {
+      node = document.body.firstChild;
+      document.body.removeChild(node);
+      previousBody.appendChild(node);
    }
-   
+   document.body.appendChild(previousHead);
+   document.body.appendChild(previousBody);
+ 
    /* prepare new page */
    document.body.width = "100%";
    document.body.height = "1372px";
@@ -327,9 +344,9 @@
    fadeSelect.addEventListener('change', function(e){
       e.stopPropagation();
       if (fadeSelect.selectedIndex == 0) {
-         shouldFade = true;
-      } else {
          shouldFade = false;
+      } else {
+         shouldFade = true;
       }
       scroller.start();
       menu.style.display = 'none';
