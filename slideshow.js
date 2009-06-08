@@ -37,7 +37,6 @@
       loaders["4u.straightline.jp"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
          if (page == 1) {
-            div = document.getElementById('body');
             getContentImages("//div[@class='entry-photo']/a/img",
                              document);
             page++;
@@ -48,7 +47,7 @@
                div.style.display = "none";
                div.innerHTML = text;
                document.body.appendChild(div);
-               getContentImages("//div[@class='entry-photo']/a/img",
+               getContentImages("//body//div[@class='entry-photo']/a/img",
                                 document);
                document.body.removeChild(div);
             });
@@ -132,15 +131,21 @@
             }
          })():url);
 
-         xhr(url+"/page/"+page, function(text){
-            page++;
-            div = document.createElement('div');
-            div.style.display = "none";
-            div.innerHTML = text;
-            document.body.appendChild(div);
+         if (page == 1) {
             getContentImages("//div[@class='img']/a/img", document);
-            document.body.removeChild(div);
-         });
+            page++;
+         } else {
+            xhr(url+"/page/"+page, function(text){
+               page++;
+               div = document.createElement('div');
+               div.style.display = "none";
+               div.innerHTML = text;
+               document.body.appendChild(div);
+               getContentImages("//body//div[@class='img']/a/img",
+                                document);
+               document.body.removeChild(div);
+            });
+         }
       };
       loaders[".*"] = function(proc, current){
          isFirst = ((typeof(isFirst)=="undefined")?true:isFirst);
@@ -274,8 +279,11 @@
       document.body.removeChild(node);
       previousBody.appendChild(node);
    }
-   document.body.appendChild(previousHead);
-   document.body.appendChild(previousBody);
+   document.getElementsByTagName('html')[0].appendChild(previousHead);
+   document.getElementsByTagName('html')[0].appendChild(previousBody);
+
+//   document.body.appendChild(previousHead);
+//   document.body.appendChild(previousBody);
  
    /* prepare new page */
    document.body.width = "100%";
