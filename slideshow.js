@@ -67,31 +67,43 @@
       };
       loaders[".*tumblr.*com"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
-         url  = ((typeof(url) =="undefined")?(function(){
-            dirs = location.pathname.split('/');
-            if (dirs[dirs.length-2] == 'page') {
-               return dirs.slice(0,dirs.length-2).join('/');
-            } else if (dirs[1] == 'post') {
-               return "";
-            } else {
-               if (location.pathname == "/") {
+
+         if (page == 1) {
+               getContentImages("//div[@class='photo']//img",
+                                document);
+               getContentImages("//p[@class='image']//img",
+                                document);
+         } else {
+            url  = ((typeof(url) =="undefined")?(function(){
+               dirs = location.pathname.split('/');
+               if (dirs[dirs.length-2] == 'page') {
+                  return dirs.slice(0,dirs.length-2).join('/');
+               } else if (dirs[1] == 'post') {
                   return "";
                } else {
-                  return location.pathname;
+                  if (location.pathname == "/") {
+                     return "";
+                  } else {
+                     return location.pathname;
+                  }
                }
-            }
-         })():url);
-
-         xhr(url+"/page/"+page, function(text){
-            page++;
-            div = document.createElement('div');
-            div.style.display = "none";
-            div.innerHTML = text;
-            document.body.appendChild(div);
-            getContentImages("//img", document);
-            document.body.removeChild(div);
-         });
+            })():url);
+            
+            xhr(url+"/page/"+page, function(text){
+               page++;
+               div = document.createElement('div');
+               div.style.display = "none";
+               div.innerHTML = text;
+               document.body.appendChild(div);
+               getContentImages("//body//div[@class='photo']//img",
+                                document);
+               getContentImages("//body//p[@class='image']//img",
+                                document);
+               document.body.removeChild(div);
+            });
+         }
       };
+
       loaders["image.baidu.jp"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
          url  = ((typeof(url) =="undefined")?(function(){
