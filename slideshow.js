@@ -69,10 +69,11 @@
          page = ((typeof(page)=="undefined")?1:page);
 
          if (page == 1) {
-               getContentImages("//div[@class='photo']//img",
-                                document);
-               getContentImages("//p[@class='image']//img",
-                                document);
+            page++;
+            getContentImages("//div[@class='photo']//img",
+                             document);
+            getContentImages("//p[@class='image']//img",
+                             document);
          } else {
             url  = ((typeof(url) =="undefined")?(function(){
                dirs = location.pathname.split('/');
