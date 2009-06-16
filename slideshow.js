@@ -41,7 +41,10 @@
                              document);
             page++;
          } else {
-            xhr("/?page="+page, function(text){
+            name = location.search.slice(1).split('&')
+               .map(function(get){return get.split('=')})
+               .filter(function(prms){return prms[0]=='name'})[0][1];
+            xhr("/?page="+page+"&name="+name, function(text){
                page++;
                div = document.createElement('div');
                div.style.display = "none";
