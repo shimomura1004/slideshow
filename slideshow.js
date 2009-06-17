@@ -31,7 +31,14 @@
             imglist[imglist.length] = imgs.snapshotItem(i);
          }
       };
-
+      var GET = {};
+      (function (){
+         prms = location.search.slice(1).split('&')
+            .map(function(get){return get.split('=')});
+         for (var prm in prms){
+            GET[prms[prm][0]] = prms[prm][1];
+         }
+      })();
 
       var loaders = [];
       loaders["4u.straightline.jp"] = function(proc, current){
@@ -41,10 +48,11 @@
                              document);
             page++;
          } else {
-            name = location.search.slice(1).split('&')
-               .map(function(get){return get.split('=')})
-               .filter(function(prms){return prms[0]=='name'})[0][1];
-            xhr("/?page="+page+"&name="+name, function(text){
+            dir = "?page="+page;
+            if (GET["name"]) {
+               dir += "&name="+GET["name"];
+            }
+            xhr(dir, function(text){
                page++;
                div = document.createElement('div');
                div.style.display = "none";
