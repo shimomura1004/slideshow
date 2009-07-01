@@ -41,7 +41,7 @@
       })();
 
       var loaders = [];
-      loaders["4u.straightline.jp"] = function(proc, current){
+      loaders[".*.straightline.jp"] = function(proc, current){
          page = ((typeof(page)=="undefined")?1:page);
          if (page == 1) {
             getContentImages("//div[@class='entry-photo']/a/img",
